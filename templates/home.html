@@ -1,0 +1,91 @@
+
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}
+    我的网站|首页
+{% endblock %}
+
+{% block header_extends %}
+    <link rel="stylesheet" href="{% static 'home.css' %}">
+    <script src="http://cdn.hcharts.cn/highcharts/highcharts.js"></script>
+{% endblock %}
+
+{% block nav_home_active %}active{% endblock %}
+{% block content %}
+    <h3 class="home-content">欢迎访问我的网站，请随便看</h3>
+    <!-- 图表容器 DOM -->
+    <div id="container" ></div>
+{#    今天２４小时内的热门博客#}
+    <div class="hot-data">
+        <h3>今天热门点击</h3>
+        <ul>
+            {% for hot in today_hot_data %}
+
+                <a href="{% url 'blog_detail' hot.content_object.pk %}"><h3>{{ hot.content_object.title }}({{ hot.read_num }})</h3></a>
+
+            {% empty %}
+                <li>今天没有热门博客</li>
+            {% endfor %}
+        </ul>
+
+    </div>
+    <div class="hot-data">
+        <h3>昨天热门点击</h3>
+        <ul>
+            {% for hot in get_yesterday_hot_data %}
+                <a href="{% url 'blog_detail' hot.content_object.pk %}"><h3>{{ hot.content_object.title }}({{ hot.read_num }})</h3></a>
+            {% empty %}
+                <li>昨天没有热门博客</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="hot-data">
+        <h3>七天热门点击</h3>
+        <ul>
+            {% for hot in get_7_day_hot %}
+                <a href="{% url 'blog_detail' hot.id %}"><p>{{ hot.title }}({{ hot.read_num_sum }})</p></a>
+            {% empty %}
+                <li>昨天没有热门博客</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script>
+        // 图表配置
+        var options = {
+            chart: {
+                type: 'line'                          //指定图表的类型，默认是折线图（line）
+            },
+            title: {
+                text: '最近七天的浏览量'                 // 标题
+            },
+            xAxis: {
+                categories: {{ dates | safe }}, // x 轴分类　　　时间
+                tickmarkPlacement:'on'  //让折点展示在ｘ轴正上方，而不是两个左边中间#}
+            },
+            yAxis: {
+                title: {
+                    text: null            // y 轴标题
+                },
+                labels:{
+                    enabled:false       //去掉ｙ轴的数字
+                },
+                gridLineDashStyle:'Dash'
+            },
+            series: [{                              // 数据列
+                name: '阅读量',                        // 数据列名
+                data: {{ read_num }}                    // 数据
+            }],
+            plotOptions: {
+                 series: {
+                 allowPointSelect: true
+                 }
+            },
+            legend:{ enabled:false  },
+            credits:{ enabled:false  },
+        };
+        // 图表初始化函数
+        var chart = Highcharts.chart('container', options);
+    </script>
+
+{% endblock %}

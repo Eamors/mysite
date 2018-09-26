@@ -1,0 +1,1 @@
+({{ hot.read_num }})
